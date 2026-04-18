@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="7 Weeks">
+<title>7 Weeks to a Win</title>
+<style>
+  :root {
+    --green: #0F6E56;
+    --green-light: #E1F5EE;
+    --green-mid: #1D9E75;
+    --text: #1a1a1a;
+    --text-muted: #6b6b6b;
+    --border: rgba(0,0,0,0.12);
+    --border-light: rgba(0,0,0,0.07);
+    --bg: #ffffff;
+    --bg-secondary: #f7f7f5;
+    --bg-card: #ffffff;
+    --radius: 10px;
+    --radius-sm: 6px;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --text: #f0f0ee;
+      --text-muted: #9a9a96;
+      --border: rgba(255,255,255,0.14);
+      --border-light: rgba(255,255,255,0.07);
+      --bg: #141413;
+      --bg-secondary: #1e1e1c;
+      --bg-card: #1e1e1c;
+      --green-light: #04342C;
+    }
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  body {
+    font-family: -apple-system, 'SF Pro Text', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    font-size: 15px;
+    line-height: 1.4;
+    max-width: 480px;
+    margin: 0 auto;
+    padding-bottom: 40px;
+  }
+  header {
+    padding: 18px 16px 12px;
+    border-bottom: 0.5px solid var(--border);
+    position: sticky;
+    top: 0;
+    background: var(--bg);
+    z-index: 10;
+  }
+  .header-top {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    margin-bottom: 2px;
+  }
+  h1 { font-size: 18px; font-weight: 600; letter-spacing: -0.3px; }
+  .subtitle { font-size: 12px; color: var(--text-muted); }
+  .week-nav {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 10px;
+  }
+  .nav-btn {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    border: 0.5px solid var(--border);
+    background: var(--bg-secondary);
+    color: var(--text);
+    font-size: 16px;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .nav-btn:active { opacity: 0.6; }
+  .week-label {
+    flex: 1;
+    text-align: center;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text);
+  }
+  .scores {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 8px;
+    padding: 12px 16px;
+    border-bottom: 0.5px solid var(--border-light);
+  }
+  .score-card {
+    background: var(--bg-secondary);
+    border-radius: var(--radius-sm);
+    padding: 8px 10px;
+    text-align: center;
+  }
+  .score-val {
+    font-size: 22px;
+    font-weight: 600;
+    letter-spacing: -0.5px;
+    color: var(--text);
+    line-height: 1;
+  }
+  .score-val.green { color: var(--green); }
+  .score-lbl { font-size: 10px; color: var(--text-muted); margin-top: 3px; }
+  .progress-wrap {
+    height: 4px;
+    background: var(--border-light);
+    margin: 0 16px 0;
+    border-radius: 2px;
+    overflow: hidden;
+  }
+  .progress-bar {
+    height: 4px;
+    background: var(--green);
+    border-radius: 2px;
+    transition: width 0.35s ease;
+  }
+  .table-wrap { padding: 0 16px; margin-top: 12px; }
+  table { width: 100%; border-collapse: collapse; }
+  thead th {
+    font-size: 10px;
+    font-weight: 500;
+    color: var(--text-muted);
+    text-align: center;
+    padding: 0 2px 6px;
+    border-bottom: 0.5px solid var(--border);
+  }
+  thead th.cat { text-align: left; }
+  tbody tr { border-bottom: 0.5px solid var(--border-light); }
+  tbody tr:last-child { border-bottom: none; }
+  td { padding: 7px 2px; vertical-align: middle; }
+  td.cat {
+    font-size: 12px;
+    color: var(--text);
+    padding-right: 4px;
+    white-space: nowrap;
+    max-width: 110px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  td.pts {
+    font-size: 10px;
+    color: var(--text-muted);
+    text-align: center;
+    white-space: nowrap;
+  }
+  td.day-cell { text-align: center; padding: 7px 1px; }
+  td.earned {
+    text-align: right;
+    font-size: 12px;
+    font-weight: 500;
+    white-space: nowrap;
+    padding-left: 4px;
+  }
+  .earned-ok { color: var(--green); }
+  .earned-partial { color: var(--text-muted); }
+  .earned-bonus { color: var(--green); }
+  .sup-bonus { font-size: 9px; vertical-align: super; color: var(--green-mid); }
+
+  /* Custom checkbox */
+  .cb-wrap { display: flex; align-items: center; justify-content: center; }
+  .cb-wrap input[type=checkbox] { display: none; }
+  .cb-box {
+    width: 20px; height: 20px;
+    border-radius: 5px;
+    border: 1.5px solid var(--border);
+    background: var(--bg);
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s;
+    flex-shrink: 0;
+  }
+  .cb-box.checked {
+    background: var(--green);
+    border-color: var(--green);
+  }
+  .cb-box .tick {
+    display: none;
+    width: 10px; height: 7px;
+    position: relative;
+  }
+  .cb-box.checked .tick { display: block; }
+  .cb-box .tick::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 3px;
+    width: 4px; height: 1.5px;
+    background: white;
+    transform: rotate(45deg);
+    transform-origin: left center;
+  }
+  .cb-box .tick::after {
+    content: '';
+    position: absolute;
+    left: 2.5px; top: 6px;
+    width: 7px; height: 1.5px;
+    background: white;
+    transform: rotate(-55deg);
+    transform-origin: left center;
+  }
+
+  tfoot td {
+    padding: 8px 2px 4px;
+    border-top: 1px solid var(--border);
+  }
+  .foot-label { font-size: 11px; font-weight: 500; color: var(--text-muted); }
+  .foot-val { text-align: center; font-size: 12px; font-weight: 600; color: var(--text); }
+
+  .reset-row {
+    display: flex;
+    justify-content: flex-end;
+    padding: 10px 16px 0;
+  }
+  .reset-btn {
+    font-size: 12px;
+    color: var(--text-muted);
+    background: none;
+    border: 0.5px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 4px 10px;
+    cursor: pointer;
+  }
+  .reset-btn:active { opacity: 0.6; }
+  .bonus-msg {
+    font-size: 11px;
+    color: var(--green);
+    text-align: center;
+    padding: 6px 16px 0;
+    min-height: 20px;
+  }
+  .week-history {
+    margin: 16px 16px 0;
+    background: var(--bg-secondary);
+    border-radius: var(--radius);
+    padding: 12px 14px;
+  }
+  .history-title {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-muted);
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .history-grid {
+    display: grid;
+    grid-template-columns: repeat(7,1fr);
+    gap: 4px;
+  }
+  .hist-cell {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+  }
+  .hist-wk { font-size: 9px; color: var(--text-muted); }
+  .hist-bar-wrap {
+    width: 100%;
+    height: 40px;
+    background: var(--border-light);
+    border-radius: 3px;
+    display: flex;
+    align-items: flex-end;
+    overflow: hidden;
+  }
+  .hist-bar {
+    width: 100%;
+    background: var(--green);
+    border-radius: 3px 3px 0 0;
+    min-height: 2px;
+  }
+  .hist-val { font-size: 9px; color: var(--text-muted); }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-top">
+    <h1>7 Weeks to a Win 🏃</h1>
+  </div>
+  <div class="subtitle">Fontana Days Half Marathon — June 6, 2026</div>
+  <div class="week-nav">
+    <button class="nav-btn" onclick="changeWeek(-1)">&#8249;</button>
+    <span class="week-label" id="weekLabel"></span>
+    <button class="nav-btn" onclick="changeWeek(1)">&#8250;</button>
+  </div>
+</header>
+
+<div class="scores">
+  <div class="score-card">
+    <div class="score-val" id="earnedPts">0</div>
+    <div class="score-lbl">pts earned</div>
+  </div>
+  <div class="score-card">
+    <div class="score-val" id="pctScore">0%</div>
+    <div class="score-lbl">of 100</div>
+  </div>
+  <div class="score-card">
+    <div class="score-val green" id="bonusPts">+0</div>
+    <div class="score-lbl">bonus pts</div>
+  </div>
+</div>
+<div class="progress-wrap">
+  <div class="progress-bar" id="pctBar" style="width:0%"></div>
+</div>
+
+<div class="reset-row">
+  <button class="reset-btn" onclick="resetWeek()">Reset week</button>
+</div>
+
+<div class="table-wrap">
+<table>
+<thead>
+<tr>
+  <th class="cat">Activity</th>
+  <th class="pts">max</th>
+  <th>F</th><th>Sa</th><th>Su</th><th>M</th><th>Tu</th><th>W</th><th>Th</th>
+  <th>Pts</th>
+</tr>
+</thead>
+<tbody id="tableBody"></tbody>
+<tfoot id="tableFoot"></tfoot>
+</table>
+</div>
+
+<div class="bonus-msg" id="bonusMsg"></div>
+
+<div class="week-history">
+  <div class="history-title">All 7 weeks</div>
+  <div class="history-grid" id="histGrid"></div>
+</div>
+
+<script>
+const ROWS = [
+  {id:'weigh',    label:'Weighed today',     ptsEach:1, max:5},
+  {id:'food',     label:'Food tracked',      ptsEach:1, max:5},
+  {id:'kcal',     label:'Kcals on target',   ptsEach:5, max:5},
+  {id:'protein',  label:'Protein on target', ptsEach:2, max:5},
+  {id:'run',      label:'Run completed',     ptsEach:5, max:4},
+  {id:'strength', label:'Strength session',  ptsEach:5, max:2},
+  {id:'stretch',  label:'Stretch / core',    ptsEach:1, max:5},
+  {id:'dog',      label:'Dog walk',          ptsEach:1, max:5},
+  {id:'wakeup',   label:'Wake up 5:15',      ptsEach:2, max:5},
+  {id:'inbed',    label:'In bed 9:15',       ptsEach:1, max:5},
+];
+
+const BASE_FRIDAY = new Date(2026, 3, 17);
+let currentWeek = 0;
+let allData = {};
+
+function loadData() {
+  try { const s = localStorage.getItem('fit7w2a'); if (s) allData = JSON.parse(s); } catch(e) {}
+}
+function saveData() {
+  try { localStorage.setItem('fit7w2a', JSON.stringify(allData)); } catch(e) {}
+}
+function cellKey(w, row, day) { return 'w'+w+'_'+row+'_'+day; }
+function getCheck(w, row, day) { return !!(allData[cellKey(w,row,day)]); }
+function setCheck(w, row, day, val) { allData[cellKey(w,row,day)] = val; saveData(); }
+
+function weekDates(w) {
+  const start = new Date(BASE_FRIDAY);
+  start.setDate(BASE_FRIDAY.getDate() + w * 7);
+  const end = new Date(start);
+  end.setDate(start.getDate() + 6);
+  return { start, end };
+}
+function fmt(d) { return d.toLocaleDateString('en-US', {month:'short', day:'numeric'}); }
+
+function weekScore(w) {
+  let total = 0;
+  ROWS.forEach(row => {
+    let checked = 0;
+    for (let d = 0; d < 7; d++) if (getCheck(w, row.id, d)) checked++;
+    total += Math.min(checked * row.ptsEach, row.ptsEach * row.max);
+  });
+  return total;
+}
+
+function changeWeek(dir) {
+  currentWeek = Math.max(0, Math.min(6, currentWeek + dir));
+  render();
+}
+
+function resetWeek() {
+  if (!confirm('Clear all entries for week ' + (currentWeek+1) + '?')) return;
+  const prefix = 'w'+currentWeek+'_';
+  Object.keys(allData).forEach(k => { if (k.startsWith(prefix)) delete allData[k]; });
+  saveData();
+  render();
+}
+
+function toggle(rowId, day) {
+  const cur = getCheck(currentWeek, rowId, day);
+  setCheck(currentWeek, rowId, day, !cur);
+  render();
+}
+
+function render() {
+  const {start, end} = weekDates(currentWeek);
+  document.getElementById('weekLabel').textContent =
+    'Week ' + (currentWeek+1) + '  ·  ' + fmt(start) + ' – ' + fmt(end);
+
+  let totalEarned = 0, totalBonus = 0;
+  const dayTotals = Array(7).fill(0);
+
+  const tbody = document.getElementById('tableBody');
+  tbody.innerHTML = '';
+
+  ROWS.forEach(row => {
+    const maxPts = row.ptsEach * row.max;
+    let rowChecked = 0;
+    const tr = document.createElement('tr');
+
+    let cellsHTML = `<td class="cat">${row.label}</td><td class="pts">${maxPts}</td>`;
+    for (let d = 0; d < 7; d++) {
+      const checked = getCheck(currentWeek, row.id, d);
+      if (checked) rowChecked++;
+      cellsHTML += `<td class="day-cell">
+        <label class="cb-wrap" onclick="toggle('${row.id}',${d})">
+          <div class="cb-box${checked?' checked':''}"><div class="tick"></div></div>
+        </label>
+      </td>`;
+    }
+
+    const rawEarned = rowChecked * row.ptsEach;
+    const capped = Math.min(rawEarned, maxPts);
+    const bonus = rawEarned - capped;
+    totalEarned += capped;
+    totalBonus += bonus;
+
+    for (let d = 0; d < 7; d++) {
+      if (getCheck(currentWeek, row.id, d)) dayTotals[d] += row.ptsEach;
+    }
+
+    let earnedHTML;
+    if (bonus > 0) {
+      earnedHTML = `<span class="earned-bonus">${capped}<span class="sup-bonus">+${bonus}</span></span>/<span style="color:var(--text-muted)">${maxPts}</span>`;
+    } else if (capped === maxPts) {
+      earnedHTML = `<span class="earned-ok">${capped}/${maxPts}</span>`;
+    } else {
+      earnedHTML = `<span class="earned-partial">${capped}/${maxPts}</span>`;
+    }
+    cellsHTML += `<td class="earned">${earnedHTML}</td>`;
+    tr.innerHTML = cellsHTML;
+    tbody.appendChild(tr);
+  });
+
+  const pct = Math.min(totalEarned, 100);
+  document.getElementById('earnedPts').textContent = totalEarned;
+  document.getElementById('pctScore').textContent = Math.round(totalEarned) + '%';
+  document.getElementById('bonusPts').textContent = '+' + totalBonus;
+  document.getElementById('pctBar').style.width = pct + '%';
+  document.getElementById('bonusMsg').textContent =
+    totalBonus > 0 ? '🎉 ' + totalBonus + ' bonus point' + (totalBonus > 1 ? 's' : '') + ' this week!' : '';
+
+  // Day totals footer
+  const tfoot = document.getElementById('tableFoot');
+  let footHTML = `<tr><td class="foot-label" colspan="2">Day total</td>`;
+  for (let d = 0; d < 7; d++) {
+    footHTML += `<td class="foot-val">${dayTotals[d]}</td>`;
+  }
+  footHTML += `<td class="foot-val" style="color:var(--green)">${totalEarned}</td></tr>`;
+  tfoot.innerHTML = footHTML;
+
+  // History bars
+  const histGrid = document.getElementById('histGrid');
+  histGrid.innerHTML = '';
+  for (let w = 0; w < 7; w++) {
+    const s = weekScore(w);
+    const pctH = Math.min(s, 100);
+    const active = w === currentWeek;
+    histGrid.innerHTML += `
+      <div class="hist-cell" onclick="currentWeek=${w};render();" style="cursor:pointer;opacity:${active?1:0.6}">
+        <div class="hist-wk" style="font-weight:${active?600:400}">W${w+1}</div>
+        <div class="hist-bar-wrap">
+          <div class="hist-bar" style="height:${pctH}%;${active?'background:var(--green-mid)':''}"></div>
+        </div>
+        <div class="hist-val">${s}</div>
+      </div>`;
+  }
+}
+
+loadData();
+// Auto-detect current week
+const today = new Date();
+for (let w = 6; w >= 0; w--) {
+  const {start} = weekDates(w);
+  if (today >= start) { currentWeek = w; break; }
+}
+render();
+</script>
+</body>
+</html>
